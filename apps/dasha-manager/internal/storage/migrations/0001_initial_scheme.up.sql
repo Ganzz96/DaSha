@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS db_migrations (
-    name VARCHAR (256) PRIMARY KEY,
-    applied_time TIMESTAMP
+CREATE TABLE IF NOT EXISTS agents (
+    id VARCHAR(36) PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    conn VARCHAR(30)
 );

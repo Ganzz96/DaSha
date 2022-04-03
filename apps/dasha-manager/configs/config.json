@@ -1,0 +1,8 @@
+{
+    "db_path": "dasha-manager.db",
+    "host_port": "0.0.0.0:7777",
+    "agent_monitor": {
+        "host": "0.0.0.0",
+        "port": 7778
+    }
+}

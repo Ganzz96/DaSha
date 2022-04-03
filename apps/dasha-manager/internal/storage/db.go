@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -9,6 +10,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
+	sqllog "github.com/simukti/sqldb-logger"
+	"github.com/simukti/sqldb-logger/logadapter/zapadapter"
 
 	"github.com/ganzz96/dasha-manager/internal/log"
 )
@@ -18,18 +21,24 @@ type DB struct {
 	raw    *sqlx.DB
 }
 
-func New(logger *log.Logger, path string) (*DB, error) {
-	raw, err := sqlx.Connect("sqlite3", path)
+func New(logger *log.Logger, dsn string) (*DB, error) {
+	sqldb, err := sql.Open("sqlite3", dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	db := &DB{raw: raw, logger: logger}
-	return db, db.applyMigrations(path)
+	sqldb = sqllog.OpenDriver(dsn, sqldb.Driver(), zapadapter.New(logger.Logger))
+	if err := sqldb.Ping(); err != nil {
+		sqldb.Close()
+		return nil, err
+	}
+
+	db := &DB{raw: sqlx.NewDb(sqldb, "sqlite3"), logger: logger}
+	return db, db.applyMigrations(dsn)
 }
 
-func (db *DB) applyMigrations(dbPath string) error {
-	migrator, err := migrate.New("file://internal/storage/migrations", fmt.Sprintf("sqlite://%s", dbPath))
+func (db *DB) applyMigrations(dsn string) error {
+	migrator, err := migrate.New("file://internal/storage/migrations", fmt.Sprintf("sqlite://%s", dsn))
 	if err != nil {
 		return errors.WithStack(err)
 	}

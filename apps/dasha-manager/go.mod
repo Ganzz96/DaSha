@@ -8,15 +8,20 @@ require (
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/mattn/go-sqlite3 v1.14.12
 	github.com/pkg/errors v0.9.1
-	go.uber.org/zap v1.10.0
+	github.com/simukti/sqldb-logger v0.0.0-20201125162808-c35f87e285f2
+	github.com/simukti/sqldb-logger/logadapter/zapadapter v0.0.0-20201125162808-c35f87e285f2
+	github.com/spf13/cobra v1.0.0
+	go.uber.org/zap v1.16.0
 )
 
 require (
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/mod v0.4.2 // indirect
