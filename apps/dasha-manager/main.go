@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
@@ -14,6 +14,7 @@ import (
 	"github.com/ganzz96/dasha-manager/internal/config"
 	"github.com/ganzz96/dasha-manager/internal/filestream"
 	"github.com/ganzz96/dasha-manager/internal/log"
+	"github.com/ganzz96/dasha-manager/internal/router"
 	"github.com/ganzz96/dasha-manager/internal/storage"
 )
 
@@ -58,8 +59,8 @@ func initAndRun(configPath string) error {
 		return errors.WithStack(err)
 	}
 
-	router := chi.NewRouter()
 	logger := log.New()
+	router := router.NewRouter(logger)
 
 	db, err := storage.New(logger, cfg.DBPath)
 	if err != nil {
@@ -72,8 +73,17 @@ func initAndRun(configPath string) error {
 	filestreamController := filestream.New(agentController)
 	filestreamController.RegisterAPI(router)
 
-	agentMonitor := monitor.New(logger, agentController)
-	go agentMonitor.Serve(cfg.AgentMonitor.Host, cfg.AgentMonitor.Port)
+	socket, err := net.ListenUDP("udp", &net.UDPAddr{
+		IP:   net.ParseIP(cfg.AgentMonitor.Host),
+		Port: cfg.AgentMonitor.Port,
+	})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer socket.Close()
+
+	agentMonitor := monitor.New(logger, socket, agentController)
+	go agentMonitor.Serve()
 
 	if err := http.ListenAndServe(cfg.HostPort, router); err != nil {
 		return errors.WithStack(err)

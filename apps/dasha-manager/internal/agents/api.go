@@ -14,14 +14,20 @@ func (ac *AgentController) RegisterAPI(router *chi.Mux) {
 }
 
 func (ac *AgentController) registerAgent(w http.ResponseWriter, r *http.Request) {
-	var agent Agent
+	var req RegisterRequest
 
-	if err := fromBody(r.Body, &agent); err != nil {
+	if err := fromBody(r.Body, &req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := ac.Register(&agent); err != nil {
+	resp, err := ac.Register(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := toBody(w, resp); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -30,4 +36,9 @@ func (ac *AgentController) registerAgent(w http.ResponseWriter, r *http.Request)
 func fromBody(body io.Reader, dest interface{}) error {
 	decoder := json.NewDecoder(body)
 	return errors.WithStack(decoder.Decode(&dest))
+}
+
+func toBody(body io.Writer, source interface{}) error {
+	encoder := json.NewEncoder(body)
+	return errors.WithStack(encoder.Encode(source))
 }

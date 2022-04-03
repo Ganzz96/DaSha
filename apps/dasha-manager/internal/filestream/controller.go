@@ -23,5 +23,5 @@ func (fc *FilestreamController) Upload(info *UploadRequest) (UploadResponse, err
 		return UploadResponse{}, errors.WithStack(err)
 	}
 
-	return UploadResponse{Conn: agent.Conn}, nil
+	return UploadResponse{Conn: *agent.Conn}, nil
 }

@@ -2,7 +2,6 @@ package monitor
 
 import (
 	"net"
-	"time"
 
 	"github.com/ganzz96/dasha-manager/internal/log"
 )
@@ -14,27 +13,17 @@ type agentReporter interface {
 type AgentMonitor struct {
 	logger        *log.Logger
 	agentReporter agentReporter
+	socket        *net.UDPConn
 }
 
-func New(logger *log.Logger, agentReporter agentReporter) *AgentMonitor {
-	return &AgentMonitor{logger: logger, agentReporter: agentReporter}
+func New(logger *log.Logger, socket *net.UDPConn, agentReporter agentReporter) *AgentMonitor {
+	return &AgentMonitor{logger: logger, socket: socket, agentReporter: agentReporter}
 }
 
-func (am *AgentMonitor) Serve(host string, port int) {
-	socket, err := net.ListenUDP("udp", &net.UDPAddr{
-		IP:   net.ParseIP(host),
-		Port: port,
-	})
-	if err != nil {
-		am.logger.Sugar().Fatal(err)
-	}
-	defer socket.Close()
-
+func (am *AgentMonitor) Serve() {
 	for {
-		time.Sleep(time.Second)
-
 		buffer := make([]byte, 100)
-		nn, agentUDPAddr, err := socket.ReadFromUDP(buffer)
+		nn, agentUDPAddr, err := am.socket.ReadFromUDP(buffer)
 		if err != nil {
 			am.logger.Sugar().Error(err)
 			continue
@@ -44,8 +33,10 @@ func (am *AgentMonitor) Serve(host string, port int) {
 			continue
 		}
 
-		if err = am.agentReporter.Report(string(buffer[:nn]), agentUDPAddr.String()); err != nil {
-			am.logger.Sugar().Error(err)
+		agentID := string(buffer[:nn])
+
+		if err = am.agentReporter.Report(agentID, agentUDPAddr.String()); err != nil {
+			am.logger.Sugar().Errorf("Failed to get report by agent with id %s. Got error %v.", agentID, err)
 			continue
 		}
 	}
