@@ -1,9 +1,9 @@
 package filestream
 
 type UploadRequest struct {
-	AgentID string
+	AgentID string `json:"agent_id"`
 }
 
 type UploadResponse struct {
-	Conn string
+	Conn string `json:"conn"`
 }

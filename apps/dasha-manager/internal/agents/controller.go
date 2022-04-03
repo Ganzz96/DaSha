@@ -52,5 +52,12 @@ func (am *AgentController) Report(aID string, conn string) error {
 }
 
 func (am *AgentController) GetAgent(id string) (*Agent, error) {
-	return am.db.GetAgent(id)
+	agent, err := am.db.GetAgent(id)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if agent == nil {
+		return nil, errors.WithStack(ErrAgentDoesNotExist)
+	}
+	return agent, nil
 }

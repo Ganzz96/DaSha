@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ganzz96/dasha-manager/internal/agents"
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 )
@@ -23,6 +24,11 @@ func (fc *FilestreamController) upload(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := fc.Upload(&info)
 	if err != nil {
+		if errors.Is(err, agents.ErrAgentDoesNotExist) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
