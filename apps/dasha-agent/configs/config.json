@@ -1,7 +1,0 @@
-{
-    "dasha_manager_client": {
-        "udp_hostport": "127.0.0.1:7778",
-        "http_hostport": "http://127.0.0.1:7777"
-    },
-    "report_interval_in_sec": 60
-}

@@ -1,0 +1,5 @@
+{
+    "host_port": "127.0.0.1:3003",
+    "stun_server": "relay.webwormhole.io:3478",
+    "agent_manager_endpoint": "http://127.0.0.1:6000/"
+}

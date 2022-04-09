@@ -1,0 +1,8 @@
+{
+    "agent_manager": {
+        "tcp_hostport": "127.0.0.1:6001",
+        "http_hostport": "http://127.0.0.1:6000"
+    },
+    "report_interval_in_sec": 5,
+    "stun_server": "relay.webwormhole.io:3478"
+}
